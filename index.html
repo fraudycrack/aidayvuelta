@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Qué hay pa' ver hoy?</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('fondo.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            width: 90%;
+            max-width: 900px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1 { text-align: center; margin-top: 0; }
+        
+        .search-box { width: 100%; margin-bottom: 20px; }
+        #searchInput {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+        }
+        #searchInput::placeholder { color: rgba(255, 255, 255, 0.6); }
+
+        video { width: 100%; border-radius: 10px; margin-bottom: 20px; background: #000; outline: none; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .column {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        h3 { color: #ffcc00; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-top: 0; }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px 12px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            text-align: left;
+            transition: 0.3s;
+            backdrop-filter: blur(4px);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        button:hover { background: rgba(255, 255, 255, 0.3); transform: translateX(4px); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>¿Qué hay pa' ver hoy?</h1>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar filme o serie..." onkeyup="filtrar()">
+    </div>
+    
+    <video id="videoPlayer" controls></video>
+    
+    <div class="grid">
+        <div class="column"><h3>Filmes</h3><div id="filmes"></div></div>
+        <div class="column"><h3>Series</h3><div id="series"></div></div>
+    </div>
+</div>
+
+<script>
+    // ZONA DE INSERCION AUTOMATICA
+    const catalogo = [    
+        { type: 'serie', title: 'Capítulo Regalo Aida y Vuelta', url: 'https://media.githubusercontent.com/media/fraudycrack/aidayvuelta/refs/heads/main/Capitulo_Regalo.mp4' },
+        { type: 'filme', title: 'Aida y Vuelta 2026', url: 'https://media.githubusercontent.com/media/fraudycrack/aidayvuelta/refs/heads/main/Aida_y_Vuelta.mp4' },
+    ];
+
+    function cargar(lista) {
+        document.getElementById('filmes').innerHTML = "";
+        document.getElementById('series').innerHTML = "";
+        lista.forEach(item => {
+            let btn = document.createElement('button');
+            btn.innerText = item.title;
+            btn.title = item.title;
+            btn.onclick = () => { 
+                let v = document.getElementById('videoPlayer');
+                v.src = item.url; 
+                v.play(); 
+            };
+            document.getElementById(item.type === 'filme' ? 'filmes' : 'series').appendChild(btn);
+        });
+    }function filtrar() {
+        let texto = document.getElementById('searchInput').value.toLowerCase();
+        let filtrado = catalogo.filter(i => i.title.toLowerCase().includes(texto));
+        cargar(filtrado);
+    }
+
+    if (catalogo.length > 0) {
+        document.getElementById('videoPlayer').src = catalogo[0].url;
+    }
+    cargar(catalogo);
+</script>
+</body>
+</html>
