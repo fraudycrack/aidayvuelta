@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aida_y_Vuelta</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            /* Configuración del fondo */
+            background-image: url('fondo.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Capa oscura para mejorar legibilidad sobre la foto */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: -1;
+        }
+
+        h1 {
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            font-size: 2em;
+            color: #00bcd4;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.3);
+        }
+
+        #main-container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        #video-section {
+            flex: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        #video-player {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        #playlist-section {
+            flex: 1;
+            background: rgba(0,0,0,0.7);
+            border-radius: 10px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        #playlist {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .playlist-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .playlist-item:hover {
+            background: rgba(0, 188, 212, 0.3);
+        }
+
+        .playlist-item.active {
+            background: rgba(0, 188, 212, 0.6);
+            border-left: 5px solid #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <h1>Aida y Vuelta</h1>
+
+    <div id="main-container">
+        <div id="video-section">
+            <video id="video-player" controls>
+                Tu navegador no soporta el elemento de video.
+            </video>
+        </div>
+
+        <div id="playlist-section">
+            <ul id="playlist">
+                <!-- Lista generada por JS -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const videoFiles = [
+            "Aida_y_Vuelta.mp4",
+            "Capitulo_Regalo.mp4"
+        ];
+
+        const videoPlayer = document.getElementById('video-player');
+        const playlistElement = document.getElementById('playlist');
+        let currentVideoIndex = 0;
+
+        function loadAndPlayVideo(index) {
+            currentVideoIndex = index;
+            videoPlayer.src = videoFiles[currentVideoIndex];
+            videoPlayer.load();
+            videoPlayer.play().catch(e => console.log("Esperando interacción..."));
+            updatePlaylistUI();
+        }
+
+        function updatePlaylistUI() {
+            document.querySelectorAll('.playlist-item').forEach((item, index) => {
+                item.className = index === currentVideoIndex ? 'playlist-item active' : 'playlist-item';
+            });
+        }
+
+        videoFiles.forEach((file, index) => {
+            const li = document.createElement('li');
+            li.className = 'playlist-item';
+            li.textContent = file.replace(/_/g, ' ');
+            li.onclick = () => loadAndPlayVideo(index);
+            playlistElement.appendChild(li);
+        });
+
+        videoPlayer.onended = () => {
+            let next = (currentVideoIndex + 1) % videoFiles.length;
+            loadAndPlayVideo(next);
+        };
+
+        // Carga inicial
+        videoPlayer.src = videoFiles[0];
+        updatePlaylistUI();
+    </script>
+</body>
+</html>
