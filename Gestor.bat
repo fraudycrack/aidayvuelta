@@ -15,62 +15,58 @@ echo.
 echo ===================================================
 set /p "opcion=Elige una opcion (1, 2 o 0): "
 
-if "%opcion%"=="1" goto agregar
+if "%opcion%"=="1" goto seleccionar_tipo
 if "%opcion%"=="2" goto borrar
 if "%opcion%"=="0" exit
-
 goto menu
 
 :: ===================================================
-:: SECCION: AGREGAR CONTENIDO
+:: SECCION: SELECCIONAR TIPO
 :: ===================================================
-:agregar
+:seleccionar_tipo
 cls
 echo ===================================================
 echo              AGREGAR NUEVO CONTENIDO
 echo ===================================================
 echo.
-
-set /p "tipo=Tipo (escribe 'filme' o 'serie'): "
-if /i "%tipo%"=="f" set tipo=filme
-if /i "%tipo%"=="s" set tipo=serie
-if not "%tipo%"=="filme" if not "%tipo%"=="serie" (
-    echo [X] Error: Escribe 'filme' o 'serie'.
-    pause
-    goto agregar
-)
-
+echo   [1] Filme
+echo   [2] Serie
 echo.
-set /p "nombre=Nombre del contenido: "
-if "%nombre%"=="" ( 
-    echo [X] Error: El nombre no puede estar vacio.
-    pause
-    goto agregar
-)
+set /p "opcTipo=Selecciona el tipo (1 o 2): "
 
+if "%opcTipo%"=="1" set "tipo=filme" && goto agregar_datos
+if "%opcTipo%"=="2" set "tipo=serie" && goto agregar_datos
+
+echo [X] Error: Debes elegir 1 o 2.
+pause
+goto seleccionar_tipo
+
+:: ===================================================
+:: SECCION: PEDIR DATOS Y AGREGAR
+:: ===================================================
+:agregar_datos
 echo.
-set /p "url=Ruta del archivo o URL: "
-if "%url%"=="" (
-    echo [X] Error: La URL no puede estar vacia.
-    pause
-    goto agregar
-)
+set /p "nombre=Nombre del contenido (Titulo que se vera): "
+echo.
+set /p "archivo=Nombre del archivo exacto (ej: Aida_y_Vuelta.mp4): "
+
+if "%nombre%"=="" goto agregar_datos
+if "%archivo%"=="" goto agregar_datos
+
+:: Construimos la URL automaticamente
+set "url=https://media.githubusercontent.com/media/fraudycrack/que_hay_pa_ver_hoy/refs/heads/main/%archivo%"
 
 cls
 echo ===================================================
 echo              RESUMEN DE LO QUE VAS A AÑADIR
 echo ===================================================
 echo  Tipo   : %tipo%
-echo  Nombre : %nombre%
-echo  URL    : %url%
+echo  Titulo : %nombre%
+echo  Archivo: %archivo%
 echo ===================================================
 echo.
 set /p "confir=¿Esta todo correcto? (s/n): "
-if /i "%confir%" NEQ "s" (
-    echo [!] Cancelado.
-    timeout /t 2 >nul
-    goto menu
-)
+if /i "%confir%" NEQ "s" goto menu
 
 powershell -Command "$lines = Get-Content 'index.html' -Encoding UTF8; $newItem = '        { type: ''%tipo%'', title: ''%nombre%'', url: ''%url%'' },'; for($i=0; $i -lt $lines.Length; $i++) { if($lines[$i] -match 'const catalogo = \[') { $insertIndex = $i + 1; break } } if($insertIndex) { $newLines = $lines[0..($insertIndex-1)] + $newItem + $lines[$insertIndex..($lines.Length-1)]; $newLines | Set-Content 'index.html' -Encoding UTF8; Write-Host '[OK] ¡Añadido con éxito!' -ForegroundColor Green } else { Write-Host '[X] Error al ubicar el catalogo' -ForegroundColor Red }"
 
@@ -87,9 +83,6 @@ echo ===================================================
 echo                BORRAR CONTENIDO
 echo ===================================================
 echo.
-echo Leyendo el catalogo actual desde el index.html...
-echo.
-
 powershell -Command "$lines = Get-Content 'index.html' -Encoding UTF8; $count = 0; for($i=0; $i -lt $lines.Length; $i++) { if($lines[$i] -match 'title:') { $count++; Write-Host ('  [' + $count + '] ' + $lines[$i].Trim()) } }; if($count -eq 0) { Write-Host 'No hay elementos.' }" > "%TEMP%\catalog_list.tmp"
 
 type "%TEMP%\catalog_list.tmp"
