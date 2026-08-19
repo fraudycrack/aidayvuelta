@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FraudyPlayer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('fondo.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .player-container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            outline: none;
+        }
+        .playlist {
+            margin-top: 15px;
+            text-align: left;
+        }
+        .playlist button {
+            background: #222;
+            color: white;
+            border: 1px solid #444;
+            padding: 10px;
+            width: 100%;
+            margin-top: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .playlist button:hover {
+            background: #444;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="player-container">
+        <h1>FraudyPlayer</h1>
+        <video id="videoPlayer" controls autoplay>
+            Tu navegador no soporta el elemento de video.
+        </video>
+        <div class="playlist" id="playlist">
+            <!-- Los botones se generan automáticamente -->
+        </div>
+    </div>
+
+    <script>
+        const videoPlayer = document.getElementById('videoPlayer');
+        const playlistContainer = document.getElementById('playlist');
+
+        // Lista de vídeos con nombre limpio y su URL respectiva
+        const videoFiles = [
+            {
+                name: "Aida y Vuelta",
+                url: "https://media.githubusercontent.com/media/fraudycrack/aidayvuelta1/refs/heads/main/Aida_y_Vuelta.mp4"
+            },
+            {
+                name: "Capítulo Regalo",
+                url:"https://media.githubusercontent.com/media/fraudycrack/aidayvuelta1/refs/heads/main/Capitulo_Regalo.mp4"
+            }
+        ];
+
+        // Cargar el primer vídeo por defecto
+        if (videoFiles.length > 0) {
+            videoPlayer.src = videoFiles[0].url;
+        }
+
+        // Crear los botones usando la propiedad 'name' para que se vea ordenado
+        videoFiles.forEach((video) => {
+            const button = document.createElement('button');
+            button.innerText = video.name; // Aquí se muestra el texto limpio
+            button.onclick = () => {
+                videoPlayer.src = video.url;
+                videoPlayer.play();
+            };
+            playlistContainer.appendChild(button);
+        });
+    </script>
+
+</body>
+</html>
