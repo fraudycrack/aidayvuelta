@@ -31,6 +31,36 @@
         }
         h1 { text-align: center; margin-top: 0; }
         
+        /* Estilos de la pantalla de Login */
+        #loginOverlay {
+            text-align: center;
+            padding: 20px;
+        }
+        #loginOverlay input {
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            width: 80%;
+            max-width: 300px;
+            margin-bottom: 15px;
+            text-align: center;
+            outline: none;
+        }
+        #loginOverlay button {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            background: #ffcc00;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+            width: auto;
+        }
+        #errorMsg { color: #ff6b6b; margin-top: 10px; display: none; }
+
         .search-box { width: 100%; margin-bottom: 20px; }
         #searchInput {
             width: 100%;
@@ -57,7 +87,7 @@
         }
         h3 { color: #ffcc00; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-top: 0; }
 
-        button {
+        button.item-btn {
             display: block;
             width: 100%;
             padding: 10px 12px;
@@ -74,27 +104,64 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        button:hover { background: rgba(255, 255, 255, 0.3); transform: translateX(4px); }
+        button.item-btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateX(4px); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>¿Qué hay pa' ver hoy?</h1>
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="🔍 Buscar filme o serie..." onkeyup="filtrar()">
-    </div>
-    
-    <video id="videoPlayer" controls></video>
-    
-    <div class="grid">
-        <div class="column"><h3>Filmes</h3><div id="filmes"></div></div>
-        <div class="column"><h3>Series</h3><div id="series"></div></div>
+
+    <div id="loginOverlay">
+        <p>Introduce la contraseña de acceso:</p>
+        <input type="password" id="passwordInput" placeholder="Contraseña..." onkeypress="if(event.key === 'Enter') verificarPassword()">
+        <br>
+        <button onclick="verificarPassword()">Entrar</button>
+        <div id="errorMsg">Contraseña incorrecta</div>
+    </div><div id="mainContent" style="display: none;">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar filme o serie..." onkeyup="filtrar()">
+        </div>
+        
+        <video id="videoPlayer" controls></video>
+        
+        <div class="grid">
+            <div class="column"><h3>Filmes</h3><div id="filmes"></div></div>
+            <div class="column"><h3>Series</h3><div id="series"></div></div>
+        </div>
     </div>
 </div>
 
 <script>
-     // ZONA DE INSERCION AUTOMATICA
+    // Hash SHA-256 correspondiente a la palabra "admin"
+    const hashCorrecto = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
+
+    async function sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function verificarPassword() {
+        let pass = document.getElementById('passwordInput').value;
+        let hashIngresado = await sha256(pass);
+
+        if (hashIngresado === hashCorrecto) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            if (catalogo.length > 0) {
+                document.getElementById('videoPlayer').src = catalogo[0].url;
+            }
+            cargar(catalogo);
+        } else {
+            let error = document.getElementById('errorMsg');
+            error.style.display = 'block';
+            document.getElementById('passwordInput').value = '';
+        }
+    }
+
+    // ZONA DE INSERCION AUTOMATICA
     const catalogo = [    
         { type: 'filme', title: ' No mires arriba ', url: ' https://media.githubusercontent.com/media/fraudycrack/que_hay_pa_ver_hoy/refs/heads/main/No%20mires%20arriba.mp4 ' },
         { type: 'serie', title: ' Ollie esta perdido 1x01 ', url: ' https://media.githubusercontent.com/media/fraudycrack/que_hay_pa_ver_hoy/refs/heads/main/Ollie%20esta%20perdido%201x01.mp4 ' },
@@ -161,6 +228,7 @@
         document.getElementById('series').innerHTML = "";
         lista.forEach(item => {
             let btn = document.createElement('button');
+            btn.className = 'item-btn';
             btn.innerText = item.title;
             btn.title = item.title;
             btn.onclick = () => { 
@@ -170,23 +238,19 @@
             };
             document.getElementById(item.type === 'filme' ? 'filmes' : 'series').appendChild(btn);
         });
-    }function filtrar() {
+    }
+
+    function filtrar() {
         let texto = document.getElementById('searchInput').value.toLowerCase().trim();
-        let queryWords = texto.split(/\s+/); // Separa lo que escribes por espacios
+        let queryWords = texto.split(/\s+/);
         
         let filtrado = catalogo.filter(item => {
             let titleLower = item.title.toLowerCase();
-            // Comprueba que todas las palabras escritas aparezcan en el título
             return queryWords.every(word => titleLower.includes(word));
         });
         
         cargar(filtrado);
     }
-
-    if (catalogo.length > 0) {
-        document.getElementById('videoPlayer').src = catalogo[0].url;
-    }
-    cargar(catalogo);
 </script>
 </body>
 </html>
