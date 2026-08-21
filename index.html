@@ -31,7 +31,6 @@
         }
         h1 { text-align: center; margin-top: 0; }
         
-        /* Estilos de la pantalla de Login */
         #loginOverlay {
             text-align: center;
             padding: 20px;
@@ -74,7 +73,46 @@
         }
         #searchInput::placeholder { color: rgba(255, 255, 255, 0.6); }
 
-        video { width: 100%; border-radius: 10px; margin-bottom: 20px; background: #000; outline: none; }
+        .video-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        video { 
+            width: 100%; 
+            max-height: 400px;
+            object-fit: contain; /* Por defecto ajustado */
+            border-radius: 10px; 
+            background: #000; 
+            outline: none; 
+            display: block;
+        }
+
+        /* Estilo para el botón de alternar zoom dentro del reproductor */
+        #zoomBtn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            backdrop-filter: blur(4px);
+            transition: 0.2s;
+            z-index: 10;
+            width: auto;
+            margin: 0;
+            display: block;
+            text-align: center;
+        }
+        #zoomBtn:hover {
+            background: rgba(255, 204, 0, 0.8);
+            color: black;
+            transform: none;
+        }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .column {
@@ -85,9 +123,7 @@
             max-height: 220px;
             overflow-y: auto;
         }
-        h3 { color: #ffcc00; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-top: 0; }
-
-        button.item-btn {
+        h3 { color: #ffcc00; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-top: 0; }button.item-btn {
             display: block;
             width: 100%;
             padding: 10px 12px;
@@ -118,12 +154,17 @@
         <br>
         <button onclick="verificarPassword()">Entrar</button>
         <div id="errorMsg">Contraseña incorrecta</div>
-    </div><div id="mainContent" style="display: none;">
+    </div>
+
+    <div id="mainContent" style="display: none;">
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="🔍 Buscar filme o serie..." onkeyup="filtrar()">
         </div>
         
-        <video id="videoPlayer" controls></video>
+        <div class="video-container">
+            <video id="videoPlayer" controls></video>
+            <button id="zoomBtn" onclick="toggleZoom()">Mode: Ajustado</button>
+        </div>
         
         <div class="grid">
             <div class="column"><h3>Filmes</h3><div id="filmes"></div></div>
@@ -133,7 +174,6 @@
 </div>
 
 <script>
-    // Hash SHA-256 correspondiente a la palabra "admin"
     const hashCorrecto = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
 
     async function sha256(message) {
@@ -158,6 +198,20 @@
             let error = document.getElementById('errorMsg');
             error.style.display = 'block';
             document.getElementById('passwordInput').value = '';
+        }
+    }
+
+    // Función para alternar el zoom del vídeo directamente desde la web
+    function toggleZoom() {
+        let v = document.getElementById('videoPlayer');
+        let btn = document.getElementById('zoomBtn');
+        
+        if (v.style.objectFit === 'cover') {
+            v.style.objectFit = 'contain';
+            btn.innerText = 'Modo: Ajustado';
+        } else {
+            v.style.objectFit = 'cover';
+            btn.innerText = 'Modo: Rellenar';
         }
     }
 
@@ -394,8 +448,7 @@
         document.getElementById('filmes').innerHTML = "";
         document.getElementById('series').innerHTML = "";
         lista.forEach(item => {
-            let btn = document.createElement('button');
-            btn.className = 'item-btn';
+            let btn = document.createElement('button');btn.className = 'item-btn';
             btn.innerText = item.title;
             btn.title = item.title;
             btn.onclick = () => { 
